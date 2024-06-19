@@ -1,30 +1,34 @@
 package com.example.anew
 
-import android.content.Intent
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
-import android.view.View.INVISIBLE
+import android.view.View
 import android.view.View.VISIBLE
+import android.widget.FrameLayout
 import android.widget.LinearLayout
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
+import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CustomAdapter.OnItemClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var stubContainer: LinearLayout
+    private lateinit var fragmentContainer: FrameLayout
+ 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         recyclerView = findViewById(R.id.main_recyclerView)
-        stubContainer = findViewById(R.id.main_container)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        stubContainer = findViewById(R.id.empty_container)
+        fragmentContainer = findViewById(R.id.fragment_container)
+
+
+//        recyclerView.layoutManager = LinearLayoutManager(this)
 
 
 
@@ -34,25 +38,23 @@ class MainActivity : AppCompatActivity() {
             data.add(NewItem(R.drawable.plant5, "dkcb" + i))
         }
 
-        if (data.isEmpty()){
-            recyclerView.visibility = INVISIBLE
-            stubContainer.visibility = VISIBLE
-        } else {
-            recyclerView.visibility = VISIBLE
-            stubContainer.visibility = INVISIBLE
-        }
+        recyclerView.isVisible = data.isNotEmpty()
+        stubContainer.isVisible = data.isEmpty()
 
-        val adapter = CustomAdapter(data)
+        val adapter = CustomAdapter(data, this)
 
         recyclerView.adapter = adapter
 
-        adapter.onItemClick = {
-            val intent = Intent(this, DetailActivity::class.java)
-            intent.putExtra("title", it)
-            startActivity(intent)
+    }
+
+    override fun onItemClick(position: Int) {
+        recyclerView.visibility = View.GONE
+        val fragment = BlankFragment()
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            replace(R.id.fragment_container, fragment)
+            addToBackStack(null)
         }
-
-
-
+        fragmentContainer.visibility = VISIBLE
     }
 }
