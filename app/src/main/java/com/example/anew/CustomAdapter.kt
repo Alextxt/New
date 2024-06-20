@@ -23,7 +23,7 @@ class CustomAdapter(private val mList: List<NewItem>, private val itemClickListe
 
         init {
             itemView.setOnClickListener {
-                val position = adapterPosition
+                val position = absoluteAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     itemClickListener.onItemClick(position)
                 }
